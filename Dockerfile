@@ -4,7 +4,7 @@ LABEL maintainer "andis.cirulis@whitedigital.eu"
 # Some general stuff & nginx
 
 RUN apt update \
-&& apt upgrade \
+&& apt -y upgrade \
 && apt -y install curl wget build-essential apt-transport-https software-properties-common tzdata unzip bzip2 cron vim git mariadb-client lsb-release ca-certificates nginx \
 
 # Set Europe/Riga timezone
