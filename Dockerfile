@@ -1,46 +1,32 @@
-FROM debian:buster
-LABEL maintainer "andis.cirulis@whitedigital.eu"
+FROM debian:bullseye-slim
+LABEL maintainer="andis.cirulis@whitedigital.eu"
 
-# Some general stuff & nginx
+# Some general stuff
 
 RUN apt update \
 && apt -y upgrade \
-&& apt -y install curl wget build-essential apt-transport-https software-properties-common tzdata unzip bzip2 cron vim git lsb-release ca-certificates nginx \
-
+&& apt -y  --no-install-recommends install wget curl build-essential apt-transport-https software-properties-common tzdata unzip bzip2 git lsb-release ca-certificates \
 # Set Europe/Riga timezone
 && ln -fs /usr/share/zoneinfo/Europe/Riga /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
-
-# PHP 7.4
+# PHP 8.1
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
 && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list \
 && apt update \
-&& apt-get install -y php7.4-fpm \
-    && apt-get install -y php7.4-mbstring php7.4-gd php7.4-bcmath php7.4-zip php7.4-xml php7.4-curl php7.4-intl php7.4-memcached php7.4-imap php7.4-pgsql php7.4-soap
-
-# Debug
-RUN apt-get install -y php7.4-xdebug
-
-# # forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
- 	&& ln -sf /dev/stderr /var/log/nginx/error.log
-
-WORKDIR /root
-ADD startup.sh ./
-RUN chmod a+x startup.sh
+&& apt-get install -y  --no-install-recommends php8.1-cli \
+    && apt-get install -y   --no-install-recommends php8.1-mbstring php8.1-gd php8.1-bcmath php8.1-zip php8.1-xml php8.1-curl php8.1-intl php8.1-memcached php8.1-imap php8.1-pgsql php8.1-http php8.1-raphf php8.1-redis php8.1-apcu
 
 
-ADD php-development.ini /etc/php/7.4/fpm/php.ini
+ADD php-development.ini /etc/php/8.1/cli/php.ini
 
 # Installing composer globally
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 && php composer-setup.php \
 &&  php -r "unlink('composer-setup.php');" \
-&& mv composer.phar /usr/local/bin/composer \
-&& composer global require hirak/prestissimo
+&& mv composer.phar /usr/local/bin/composer
 
 # Install NodeJs & Yarn
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
 && apt install -y nodejs
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
@@ -48,11 +34,12 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 && apt update && apt install yarn
 
 # Install Symfony binary
-RUN wget https://get.symfony.com/cli/installer -O - | bash \
-&&  mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash \
+&&  apt install symfony-cli
+
+RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
 
 # #Expose http, https, xdebug
 EXPOSE 80 443
 
 CMD ["/bin/bash"]
-#ENTRYPOINT  ["bash"]
