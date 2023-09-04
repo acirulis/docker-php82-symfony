@@ -5,8 +5,8 @@ List of included software:
 *Based on Debian Buster (10 LTS)*
 
 - Nginx
-- PHP 8.1 (with development php.ini) with extensions for Symfony and MySQL, PostgreSQL clients
+- PHP 8.2 (with development php.ini) with extensions for Symfony and MySQL, PostgreSQL clients
 - XDebug
 - Composer
-- Node 16 + Yarn
+- Node 18 + Yarn
 - Symfony 6 binary
