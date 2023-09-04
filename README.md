@@ -2,7 +2,7 @@
 
 List of included software:
 
-*Based on Debian Buster (10 LTS)*
+*Based on Debian Bookworm (12 LTS)*
 
 - Nginx
 - PHP 8.2 (with development php.ini) with extensions for Symfony and MySQL, PostgreSQL clients
